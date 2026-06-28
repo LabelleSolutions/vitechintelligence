@@ -43,8 +43,14 @@ export default function Login() {
     };
 
     try {
-      const storage = remember ? localStorage : sessionStorage;
-      storage.setItem("giongchuan-session", JSON.stringify(session));
+      const serialized = JSON.stringify(session);
+      if (remember) {
+        localStorage.setItem("giongchuan-session", serialized);
+        sessionStorage.removeItem("giongchuan-session");
+      } else {
+        sessionStorage.setItem("giongchuan-session", serialized);
+        localStorage.removeItem("giongchuan-session");
+      }
       localStorage.setItem("giongchuan-last-role", selectedRole);
     } catch {
       setMessage("Trình duyệt đang chặn lưu phiên. Vui lòng cho phép lưu trữ cục bộ để mở bản demo.");
