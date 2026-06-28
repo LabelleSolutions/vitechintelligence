@@ -1,9 +1,9 @@
 name: Post-merge hardening
 
 on:
-  push:
+  pull_request:
     branches:
-      - fix/post-merge-hardening
+      - main
   workflow_dispatch:
 
 permissions:
@@ -14,9 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout
+      - name: Checkout pull request branch
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.head_ref || github.ref_name }}
           fetch-depth: 0
 
       - name: Set up Node.js
@@ -29,7 +30,7 @@ jobs:
         run: npm install --package-lock-only --ignore-scripts
 
       - name: Commit refreshed package lock
-        if: github.actor != 'github-actions[bot]'
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'github-actions[bot]'
         run: |
           if git diff --quiet -- package-lock.json; then
             echo "package-lock.json is already current"
