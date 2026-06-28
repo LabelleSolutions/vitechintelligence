@@ -10,37 +10,24 @@ permissions:
   contents: write
 
 jobs:
-  validate-and-refresh-lockfile:
+  validate:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout pull request branch
+      - name: Checkout hardening branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref || github.ref_name }}
+          ref: fix/post-merge-hardening
           fetch-depth: 0
 
-      - name: Set up Node.js
+      - name: Set up Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version-file: .nvmrc
+          node-version: 22
           cache: npm
 
       - name: Refresh package lock metadata
         run: npm install --package-lock-only --ignore-scripts
-
-      - name: Commit refreshed package lock
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'github-actions[bot]'
-        run: |
-          if git diff --quiet -- package-lock.json; then
-            echo "package-lock.json is already current"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package-lock.json
-          git commit -m "chore: refresh package lock metadata [skip ci]"
-          git push
 
       - name: Install exact dependencies
         run: npm ci
@@ -56,3 +43,17 @@ jobs:
 
       - name: Validate Cloudflare deployment
         run: npx wrangler deploy --dry-run
+
+      - name: Commit refreshed package lock
+        if: github.actor != 'github-actions[bot]'
+        continue-on-error: true
+        run: |
+          if git diff --quiet -- package-lock.json; then
+            echo "package-lock.json is already current"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          git commit -m "chore: refresh package lock metadata [skip ci]"
+          git push origin HEAD:fix/post-merge-hardening
