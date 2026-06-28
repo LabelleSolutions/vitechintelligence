@@ -1,7 +1,8 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import type { Route } from "./+types/login";
 import { Icon } from "../components/Icon";
+import { buildPostLoginDestination, readLoginContext, type Role } from "../lib/login-context";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -10,13 +11,13 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-type Role = "learner" | "school" | "enterprise";
 const isRole = (value: string | null): value is Role => value === "learner" || value === "school" || value === "enterprise";
 
 export default function Login() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const requestedRole = params.get("role");
+  const context = useMemo(() => readLoginContext(params), [params]);
   const [role, setRole] = useState<Role>(isRole(requestedRole) ? requestedRole : "learner");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,13 +36,28 @@ export default function Login() {
       role: selectedRole,
       name: profiles[selectedRole],
       email: providedEmail || `${selectedRole}.demo@giongchuan.vn`,
+      authProvider: "demo" as const,
       demo: true,
+      context,
       loginAt: new Date().toISOString(),
     };
-    const storage = remember ? localStorage : sessionStorage;
-    storage.setItem("giongchuan-session", JSON.stringify(session));
-    localStorage.setItem("giongchuan-last-role", selectedRole);
-    navigate(`/portal?role=${selectedRole}`);
+
+    try {
+      const serialized = JSON.stringify(session);
+      if (remember) {
+        localStorage.setItem("giongchuan-session", serialized);
+        sessionStorage.removeItem("giongchuan-session");
+      } else {
+        sessionStorage.setItem("giongchuan-session", serialized);
+        localStorage.removeItem("giongchuan-session");
+      }
+      localStorage.setItem("giongchuan-last-role", selectedRole);
+    } catch {
+      setMessage("Trình duyệt đang chặn lưu phiên. Vui lòng cho phép lưu trữ cục bộ để mở bản demo.");
+      return;
+    }
+
+    navigate(buildPostLoginDestination(selectedRole, context));
   };
 
   const submit = (event: FormEvent) => {
@@ -54,9 +70,15 @@ export default function Login() {
       setMessage("Mật khẩu cần tối thiểu 8 ký tự.");
       return;
     }
-    setMessage("Xác thực demo thành công.");
+    setMessage("Xác thực bản demo thành công.");
     setTimeout(() => openPortal(role, email), 250);
   };
+
+  const contextLabel = context.plan
+    ? `Lộ trình đã chọn: ${context.plan}`
+    : context.intent === "orientation"
+      ? "Yêu cầu định hướng STEM sẽ được giữ lại sau đăng nhập."
+      : null;
 
   return <main className="login-shell">
     <section className="login-story">
@@ -66,16 +88,18 @@ export default function Login() {
     </section>
     <section className="login-form-area"><div className="login-card">
       <Link className="back-link" to="/">← Quay lại trang chủ</Link><h2>Chào mừng trở lại</h2><p className="intro">Chọn đúng cổng đăng nhập để xem dashboard phù hợp.</p>
+      <div className="demo-warning"><strong>Bản demo</strong><span>Chưa kết nối Firebase Auth. Không sử dụng mật khẩu thật tại đây.</span></div>
+      {contextLabel && <div className="context-notice">{contextLabel}</div>}
       <div className="role-switch">{(["learner","school","enterprise"] as Role[]).map(item => <button key={item} type="button" className={role === item ? "active" : ""} onClick={() => setRole(item)}>{item === "learner" ? "Người học" : item === "school" ? "Nhà trường" : "Doanh nghiệp"}</button>)}</div>
       <form onSubmit={submit} noValidate>
         {message && <div className={`form-alert show ${message.includes("thành công") ? "success" : "error"}`}>{message}</div>}
-        <div className="field"><label htmlFor="email">Email</label><div className="input-wrap"><Icon name="mail"/><input id="email" type="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="name@example.com" autoComplete="email" required/></div></div>
-        <div className="field"><label htmlFor="password">Mật khẩu</label><div className="input-wrap"><Icon name="lock"/><input id="password" type={showPassword ? "text" : "password"} value={password} onChange={event => setPassword(event.target.value)} placeholder="Tối thiểu 8 ký tự" autoComplete="current-password" required minLength={8}/><button className="toggle-password" type="button" onClick={() => setShowPassword(value => !value)} aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}><Icon name="eye"/></button></div></div>
-        <div className="form-row"><label className="checkbox"><input type="checkbox" checked={remember} onChange={event => setRemember(event.target.checked)}/> Ghi nhớ trên thiết bị này</label><a href="mailto:support@vitechintelligence.com">Cần hỗ trợ?</a></div>
-        <button className="login-submit" type="submit">Đăng nhập an toàn →</button>
+        <div className="field"><label htmlFor="email">Email demo</label><div className="input-wrap"><Icon name="mail"/><input id="email" type="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="name@example.com" autoComplete="email" required/></div></div>
+        <div className="field"><label htmlFor="password">Mật khẩu demo</label><div className="input-wrap"><Icon name="lock"/><input id="password" type={showPassword ? "text" : "password"} value={password} onChange={event => setPassword(event.target.value)} placeholder="Tối thiểu 8 ký tự" autoComplete="off" required minLength={8}/><button className="toggle-password" type="button" onClick={() => setShowPassword(value => !value)} aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}><Icon name="eye"/></button></div></div>
+        <div className="form-row"><label className="checkbox"><input type="checkbox" checked={remember} onChange={event => setRemember(event.target.checked)}/> Ghi nhớ bản demo trên thiết bị này</label><a href="mailto:support@vitechintelligence.com">Cần hỗ trợ?</a></div>
+        <button className="login-submit" type="submit">Mở bản demo →</button>
       </form>
-      <div className="divider-text">hoặc mở nhanh bản demo</div><div className="demo-grid"><button type="button" onClick={() => openPortal("learner")}>Demo người học</button><button type="button" onClick={() => openPortal("school")}>Demo nhà trường</button><button type="button" onClick={() => openPortal("enterprise")}>Demo doanh nghiệp</button></div>
-      <p className="login-note">Thay adapter demo bằng Firebase Auth hoặc SSO tại ranh giới đăng nhập trước khi đưa lên production.</p>
+      <div className="divider-text">hoặc mở nhanh theo vai trò</div><div className="demo-grid"><button type="button" onClick={() => openPortal("learner")}>Demo người học</button><button type="button" onClick={() => openPortal("school")}>Demo nhà trường</button><button type="button" onClick={() => openPortal("enterprise")}>Demo doanh nghiệp</button></div>
+      <p className="login-note">Production sẽ dùng Firebase Auth hoặc SSO và vai trò được xác minh tại Cloudflare Worker.</p>
     </div></section>
   </main>;
 }
