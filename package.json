@@ -3,14 +3,19 @@
   "description": "Vietnamese-first STEM Career Readiness platform by ViTech Intelligence.",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22.6.0",
+    "npm": ">=10.8.0"
+  },
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",
     "preview": "npm run build && vite preview",
     "deploy": "wrangler deploy",
+    "test": "node --test --experimental-strip-types tests/*.test.ts",
     "typegen": "wrangler types && react-router typegen",
     "typecheck": "npm run typegen && tsc -b",
-    "check": "tsc -b && react-router build && wrangler deploy --dry-run"
+    "check": "npm run test && npm run typecheck && npm run build && wrangler deploy --dry-run"
   },
   "dependencies": {
     "isbot": "5.1.32",
