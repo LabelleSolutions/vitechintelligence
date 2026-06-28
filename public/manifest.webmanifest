@@ -1,0 +1,10 @@
+{
+  "name": "Giọng Chuẩn Global",
+  "short_name": "Giọng Chuẩn",
+  "description": "Vietnamese-first STEM Career Readiness platform by ViTech Intelligence.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f7fc",
+  "theme_color": "#0a1f49",
+  "icons": []
+}

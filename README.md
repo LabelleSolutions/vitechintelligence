@@ -1,109 +1,96 @@
-# Welcome to React Router + Cloudflare Workers!
+# Giọng Chuẩn Global — Interactive STEM Career Readiness
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/templates/tree/main/react-router-starter-template)
+Vietnamese-first STEM learning and career-readiness platform developed with **ViTech Intelligence**.
 
-![React Router Starter Template Preview](https://imagedelivery.net/wSMYJvS3Xw-n339CbDyDIA/bfdc2f85-e5c9-4c92-128b-3a6711249800/public)
+The product is designed around a simple operating principle:
 
-<!-- dash-content-start -->
+> Learners should manipulate, test and explain STEM systems before they commit to a long learning or career pathway.
 
-A modern, production-ready template for building full-stack React applications using [React Router](https://reactrouter.com/) and the [Cloudflare Vite plugin](https://developers.cloudflare.com/workers/vite-plugin/).
+## Product architecture
 
-## Features
+### 1. Active Sandbox Screen
+Learners manipulate sliders, graphs and canvas elements. Abstract science and mathematics become visible system behaviour.
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
-- 🔎 Built-in Observability to monitor your Worker
-<!-- dash-content-end -->
+### 2. Formula Controller
+Variables update the simulation immediately. Formulas operate as controllers rather than static text.
 
-## Getting Started
+### 3. Code Injector
+Small, constrained logic inputs automate part of the model. Coding is treated as a tool for solving reality, not as an isolated subject.
 
-Outside of this repo, you can start a new project with this template using [C3](https://developers.cloudflare.com/pages/get-started/c3/) (the `create-cloudflare` CLI):
+## Included interactive laboratories
 
-```bash
-npm create cloudflare@latest -- --template=cloudflare/templates/react-router-starter-template
-```
+- `/physics_sandbox.html` — projectile trajectory, force, mass, velocity and angle
+- `/calculus_sandbox.html` — structural load curve and local-maximum optimisation
+- `/chemistry_sandbox.html` — VSEPR molecular geometry and electron-pair rules
+- `/app_sync_engine.js` — privacy-conscious client-side evidence log and JSON packet generator
 
-A live public deployment of this template is available at [https://react-router-starter-template.templates.workers.dev](https://react-router-starter-template.templates.workers.dev)
+All mathematical rendering and simulation work runs in the browser. The application can later send only a small completion/evidence packet to an API, keeping backend compute and database usage low.
 
-### Installation
+## Asymmetric Troubleshooting Quest
 
-Install the dependencies:
+The multiplayer model divides one problem across two roles:
+
+- **Calculator — VN role:** receives formulas, raw data and numerical constraints.
+- **Designer — PH role:** controls the visual simulator without seeing the full formula set.
+
+Success depends on accurate mathematics, clear communication and collaborative verification.
+
+## Main application routes
+
+- `/` — premium marketing and product landing page
+- `/login` — role-based demo login
+- `/portal` — learner, school and enterprise command centres
+
+The demo authentication adapter stores a temporary local session only. Replace it with Firebase Auth or enterprise SSO before production release.
+
+## Pricing position
+
+The public learner packages are positioned around value and verified outcomes rather than low-cost discounting:
+
+- STEM Discovery — 1,490,000 VND / 8 weeks
+- STEM Builder — 3,490,000 VND / 16 weeks
+- Innovation Career Lab — 6,900,000 VND / 12 months
+
+The current cost assumptions target approximately a 15% contribution margin.
+
+## Technology
+
+- React 19
+- React Router 7
+- TypeScript
+- Cloudflare Workers and Vite
+- Tailwind CSS v4
+- HTML Canvas and client-side JavaScript for STEM simulations
+
+## Local development
 
 ```bash
 npm install
-```
-
-### Development
-
-Start the development server with HMR:
-
-```bash
 npm run dev
 ```
 
-Your application will be available at `http://localhost:5173`.
-
-## Typegen
-
-Generate types for your Cloudflare bindings in `wrangler.json`:
-
-```sh
-npm run typegen
-```
-
-## Building for Production
-
-Create a production build:
+Production validation:
 
 ```bash
+npm run typecheck
 npm run build
+npm run check
 ```
 
-## Previewing the Production Build
-
-Preview the production build locally:
+Deployment:
 
 ```bash
-npm run preview
-```
-
-## Deployment
-
-If you don't have a Cloudflare account, [create one here](https://dash.cloudflare.com/sign-up)! Go to your [Workers dashboard](https://dash.cloudflare.com/?to=%2F%3Aaccount%2Fworkers-and-pages) to see your [free custom Cloudflare Workers subdomain](https://developers.cloudflare.com/workers/configuration/routing/workers-dev/) on `*.workers.dev`.
-
-Once that's done, you can build your app:
-
-```sh
-npm run build
-```
-
-And deploy it:
-
-```sh
 npm run deploy
 ```
 
-To deploy a preview URL:
+## Production boundaries
 
-```sh
-npx wrangler versions upload
-```
+Before launch, configure:
 
-You can then promote a version to production after verification or roll it out progressively.
+1. Firebase Auth or SSO and server-side session verification.
+2. PostgreSQL tenant and role mappings.
+3. A minimal evidence-ingestion API with schema validation and rate limiting.
+4. Privacy, consent and retention rules for minors and school cohorts.
+5. CI checks for type safety, build output and browser smoke tests.
 
-```sh
-npx wrangler versions deploy
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-Built with ❤️ using React Router.
+© 2026 Giọng Chuẩn Global. Platform intelligence by ViTech Intelligence.
